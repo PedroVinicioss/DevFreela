@@ -1,9 +1,6 @@
 ﻿using DevFreela.Application.Models;
 using DevFreela.Application.Services;
-using DevFreela.Core.Entities;
-using DevFreela.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DevFreela.API.Controllers
 {
@@ -37,9 +34,9 @@ namespace DevFreela.API.Controllers
         [HttpPost]
         public IActionResult Post(CreateProjectInputModel model)
         {
-            var modelId = _service.Insert(model);
+            var result = _service.Insert(model);
 
-            return CreatedAtAction(nameof(GetById), new { id = modelId }, model);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, model);
         }
 
         // PUT api/projects/1234
@@ -48,9 +45,7 @@ namespace DevFreela.API.Controllers
         {
             var result = _service.Update(model);
             if (!result.IsSuccess)
-            {
                 return BadRequest(result.Message);
-            }
 
             return NoContent();
         }
@@ -61,9 +56,7 @@ namespace DevFreela.API.Controllers
         {
             var result = _service.Delete(id);
             if (!result.IsSuccess)
-            {
                 return BadRequest(result.Message);
-            }
 
             return NoContent();
         }
@@ -74,9 +67,7 @@ namespace DevFreela.API.Controllers
         {
             var result = _service.Start(id);
             if (!result.IsSuccess)
-            {
                 return BadRequest(result.Message);
-            }
 
             return NoContent();
         }
@@ -87,9 +78,7 @@ namespace DevFreela.API.Controllers
         {
             var result = _service.Complete(id);
             if (!result.IsSuccess)
-            {
                 return BadRequest(result.Message);
-            }
 
             return NoContent();
         }
@@ -100,11 +89,9 @@ namespace DevFreela.API.Controllers
         {
             var result = _service.InsertComment(id, model);
             if (!result.IsSuccess)
-            {
                 return BadRequest(result.Message);
-            }
 
-            return Ok();
+            return NoContent();
         }
     }
 }
