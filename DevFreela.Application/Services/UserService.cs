@@ -62,7 +62,7 @@ namespace DevFreela.Application.Services
             return ResultViewModel<int>.Success(user.Id);
         }
 
-        public ResultViewModel PostSkills(int id, UserSkillsInputModel model)
+        public ResultViewModel InsertSkills(int id, UserSkillsInputModel model)
         {
             var userSkills = model.SkillIds.Select(s => new UserSkill(id, s)).ToList();
 

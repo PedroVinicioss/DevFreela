@@ -1,9 +1,6 @@
-﻿using DevFreela.Core.Entities;
-using DevFreela.Application.Models;
-using DevFreela.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using DevFreela.Application.Models;
 using DevFreela.Application.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DevFreela.API.Controllers
 {
@@ -49,7 +46,7 @@ namespace DevFreela.API.Controllers
         [HttpPost("{id}/skills")]
         public IActionResult PostSkills(int id, UserSkillsInputModel model)
         {
-            var result = _service.PostSkills(id, model);
+            var result = _service.InsertSkills(id, model);
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
 

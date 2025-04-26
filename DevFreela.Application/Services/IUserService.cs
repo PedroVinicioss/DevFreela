@@ -9,6 +9,6 @@ namespace DevFreela.Application.Services
         ResultViewModel<int> Insert(CreateUserInputModel model);
         ResultViewModel Update(UpdateUserInputModel model);
         ResultViewModel Delete(int id);
-        ResultViewModel PostSkills(int id, UserSkillsInputModel model);
+        ResultViewModel InsertSkills(int id, UserSkillsInputModel model);
     }
 }
