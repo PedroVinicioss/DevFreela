@@ -3,6 +3,7 @@ using DevFreela.Application.Models;
 using DevFreela.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DevFreela.Application.Services;
 
 namespace DevFreela.API.Controllers
 {
@@ -10,27 +11,24 @@ namespace DevFreela.API.Controllers
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly DevFreelaDbContext _context;
-        public UsersController(DevFreelaDbContext context)
+        private readonly IUserService _service;
+        public UsersController(IUserService service)
         {
-            _context = context;
+            _service = service;
+        }
+
+        // GET api/users
+        [HttpGet]
+        public IActionResult GetAll(string search = "", int page = 0, int size = 3)
+        {
+            var model = _service.GetAll(search, page, size);
+            return Ok(model);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var user = _context.Users
-                .Include(u => u.Skills)
-                    .ThenInclude(u => u.Skill)
-                .SingleOrDefault(u => u.Id == id);
-
-            if (user is null)
-            {
-                return NotFound();
-            }
-
-            var model = UserViewModel.FromEntity(user);
-
+            var model = _service.GetById(id);
             return Ok(model);
         }
 
@@ -38,33 +36,41 @@ namespace DevFreela.API.Controllers
         [HttpPost]
         public IActionResult Post(CreateUserInputModel model)
         {
-            var user = new User(model.FullName, model.Email, model.BirthDate);
+            var result = _service.Insert(model);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, model);
         }
 
         [HttpPost("{id}/skills")]
         public IActionResult PostSkills(int id, UserSkillsInputModel model)
         {
-            var userSkills = model.SkillIds.Select(s => new UserSkill(id, s)).ToList();
-
-            _context.UserSkills.AddRange(userSkills);
-            _context.SaveChanges();
+            var result = _service.PostSkills(id, model);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
 
             return NoContent();
         }
 
-        [HttpPut("{id}/profile-picture")]
-        public IActionResult PostProfilePicture(int id, IFormFile file)
+        [HttpPut("{id}")]
+        public IActionResult Update(UpdateUserInputModel model)
         {
-            var description = $"FIle: {file.FileName}, Size: {file.Length}";
+            var result = _service.Update(model);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
 
-            // Processar a imagem
+            return NoContent();
+        }
 
-            return Ok(description);
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var result = _service.Delete(id);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
+
+            return NoContent();
         }
     }
 }
