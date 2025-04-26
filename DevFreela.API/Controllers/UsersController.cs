@@ -1,5 +1,10 @@
-﻿using DevFreela.Application.Models;
-using DevFreela.Application.Services;
+﻿using DevFreela.Application.Commands.DeleteUser;
+using DevFreela.Application.Commands.InsertUser;
+using DevFreela.Application.Commands.InsertUserSkills;
+using DevFreela.Application.Commands.UpdateUser;
+using DevFreela.Application.Queries.GetAllUsers;
+using DevFreela.Application.Queries.GetUserById;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevFreela.API.Controllers
@@ -8,24 +13,24 @@ namespace DevFreela.API.Controllers
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _service;
-        public UsersController(IUserService service)
+        private readonly IMediator _mediator;
+        public UsersController(IMediator mediator)
         {
-            _service = service;
+            _mediator = mediator;
         }
 
         // GET api/users
         [HttpGet]
-        public IActionResult GetAll(string search = "", int page = 0, int size = 3)
+        public async Task<IActionResult> GetAll(string search = "", int page = 0, int size = 3)
         {
-            var model = _service.GetAll(search, page, size);
-            return Ok(model);
+            var result = await _mediator.Send(new GetAllUsersQuery(search, page, size));
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _service.GetById(id);
+            var result = await _mediator.Send(new GetUserByIdQuery(id));
             if (!result.IsSuccess)
                 return NotFound(result.Message);
 
@@ -34,19 +39,19 @@ namespace DevFreela.API.Controllers
 
         // POST api/users
         [HttpPost]
-        public IActionResult Post(CreateUserInputModel model)
+        public async Task<IActionResult> Post(InsertUserCommand command)
         {
-            var result = _service.Insert(model);
+            var result = await _mediator.Send(command);
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Data }, model);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, command);
         }
 
         [HttpPost("{id}/skills")]
-        public IActionResult PostSkills(int id, UserSkillsInputModel model)
+        public async Task<IActionResult> PostSkills(int id, InsertUserSkillsCommand command)
         {
-            var result = _service.InsertSkills(id, model);
+            var result = await _mediator.Send(command);
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
 
@@ -54,9 +59,9 @@ namespace DevFreela.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(UpdateUserInputModel model)
+        public async Task<IActionResult> Update(UpdateUserCommand command)
         {
-            var result = _service.Update(model);
+            var result = await _mediator.Send(command);
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
 
@@ -64,9 +69,9 @@ namespace DevFreela.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _service.Delete(id);
+            var result = await _mediator.Send(new DeleteUserCommand(id));
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
 

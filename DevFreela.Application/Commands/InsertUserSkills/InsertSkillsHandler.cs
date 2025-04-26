@@ -3,16 +3,16 @@ using DevFreela.Core.Entities;
 using DevFreela.Infrastructure.Persistence;
 using MediatR;
 
-namespace DevFreela.Application.Commands.InsertSkills
+namespace DevFreela.Application.Commands.InsertUserSkills
 {
-    public class InsertSkillsHandler : IRequestHandler<InsertSkillsCommand, ResultViewModel>
+    public class InsertUserSkillsHandler : IRequestHandler<InsertUserSkillsCommand, ResultViewModel>
     {
         private readonly DevFreelaDbContext _context;
-        public InsertSkillsHandler(DevFreelaDbContext context)
+        public InsertUserSkillsHandler(DevFreelaDbContext context)
         {
             _context = context;
         }
-        public async Task<ResultViewModel> Handle(InsertSkillsCommand request, CancellationToken cancellationToken)
+        public async Task<ResultViewModel> Handle(InsertUserSkillsCommand request, CancellationToken cancellationToken)
         {
             var userSkills = request.SkillIds.Select(s => new UserSkill(request.Id, s)).ToList();
 
