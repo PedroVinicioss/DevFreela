@@ -26,8 +26,11 @@ namespace DevFreela.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var model = _service.GetById(id);
-            return Ok(model);
+            var result = _service.GetById(id);
+            if (!result.IsSuccess)
+                return NotFound(result.Message);
+
+            return Ok(result);
         }
 
         // POST api/projects
