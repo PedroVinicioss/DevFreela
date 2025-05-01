@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using DevFreela.Core.Entities;
+﻿using DevFreela.Core.Entities;
 using DevFreela.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 
