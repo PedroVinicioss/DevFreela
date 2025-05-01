@@ -1,4 +1,5 @@
-﻿using DevFreela.Core.Entities;
+﻿using Azure.Core;
+using DevFreela.Core.Entities;
 using DevFreela.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,31 +28,41 @@ namespace DevFreela.Infrastructure.Persistence.Repositories
 
         public async Task<bool> Exist(int id)
         {
+            return await _context.Projects.AnyAsync(p => p.Id == id);
+        }
+
+        public async Task<List<Project>> GetAll()
+        {
+            var projects = await _context.Projects
+                .Include(p => p.Client)
+                .Include(p => p.Freelancer)
+                .Where(p => !p.IsDeleted)
+                .ToListAsync();
+
+            return projects;
+        }
+
+        public async Task<Project?> GetById(int id)
+        {
+            return await _context.Projects
+                .SingleOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Project?> GetDetailsById(int id)
+        {
             var project = await _context.Projects
-                .AsNoTracking()
-                .AnyAsync(p => p.Id == id);
+                .Include(p => p.Client)
+                .Include(p => p.Freelancer)
+                .Include(p => p.Comments)
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             return project;
         }
 
-        public Task<List<Project>> GetAll()
+        public async Task Update(Project project)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<Project?> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Project?> GetDetailsById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Update(Project project)
-        {
-            throw new NotImplementedException();
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
         }
     }
 }
